@@ -4,8 +4,10 @@
 gma.feedback("Pulse Generator Plugin Loaded :DD")
 
 -- Local Variables
+local white = 'false'
 local grp = 0
 local seq = 0
+local exec = 0
 local amount = 0
 local wing = 0
 local trigTime = 0.1
@@ -33,13 +35,20 @@ end
 ------------------
 
 function setup()
+    white = text('White Bumpd Mode?', white)
     grp = text('Enter Group Number', grp)
     seq = text('Enter Sequence Number',seq)
+    exec = text('Enter Executor Number',exec)
     wing = text('Wings?',wing)
     rnd = text('Random order?',rnd)
     amount = tonumber(text('Pulse Amount?',amount))
-    trigTime = tonumber(text('Trig time? (Default = 0.10s)',trigTime))
-    fade = tonumber(text('Fade time? (Default = 0.05s)',fade))
+    if(white == 'true') then
+        trigtime = 0
+        fade = 0
+    else
+        trigTime = tonumber(text('Trig time? (Default = 0.10s)',trigTime))
+        fade = tonumber(text('Fade time? (Default = 0.05s)',fade))
+    end
 end
 
 function create()
@@ -58,24 +67,31 @@ function create()
         cmd('Next')
         cmd('At 100')
         cmd('Store Sequence '..seq..' Cue '..cue)
+        cmd('Label Sequence '..seq..' Cue '..cue..' "ON"')
         cmd('At 0')
         cmd('Store Sequence '..seq..' Cue '..(cue + 1))
+        cmd('Label Sequence '..seq..' Cue '..(cue + 1)..' "OFF"')
         cmd('Assign Sequence '..seq..' Cue '..(cue + 1)..' /trig=time /trigtime='..trigTime..' /fade='..fade)
         cue = cue + 2
     end
     cmd('BlindEdit Off')
     cmd('Appearance Sequence '..seq..' /b=100 /r=50')
+    cmd('Assign Sequence '..seq..' /track=off')
+    cmd('Assign Sequence '..seq..' Executor '..exec)
+    cmd('Assign Executor '..exec..' /priority=htp /restart=next /offttime=0.2')
 end
 
 function resetValues()
     grp = 0
     seq = 0
+    exec = 0
     amount = 0
     wing = 0
     trigTime = 0.1
     fade = 0.05
     rnd = 'false'
     cue = 1
+    white = 'false'
 end
 
 -- Plugin Function Selection --
