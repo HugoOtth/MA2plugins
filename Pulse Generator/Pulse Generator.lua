@@ -13,6 +13,7 @@ local wing = 0
 local trigTime = 0.1
 local fade = 0.05
 local rnd = 'false'
+local white = 'false'
 
 local cue = 1
 
@@ -35,19 +36,19 @@ end
 ------------------
 
 function setup()
-    white = text('White Bumpd Mode?', white)
+    white = text('White Bump Mode?',white)
     grp = text('Enter Group Number', grp)
     seq = text('Enter Sequence Number',seq)
-    exec = text('Enter Executor Number',exec)
+    exec = text('Enter Exec Number',exec)
     wing = text('Wings?',wing)
     rnd = text('Random order?',rnd)
     amount = tonumber(text('Pulse Amount?',amount))
-    if(white == 'true') then
-        trigtime = 0
-        fade = 0
-    else
+    if(white == 'false') then
         trigTime = tonumber(text('Trig time? (Default = 0.10s)',trigTime))
         fade = tonumber(text('Fade time? (Default = 0.05s)',fade))
+    else
+        trigTime = 0
+        fade = 0
     end
 end
 
@@ -66,19 +67,26 @@ function create()
     while cue <= amount * 2 do
         cmd('Next')
         cmd('At 100')
+        if(white == 'true') then
+            cmd('At Gel 1.1')
+        end
         cmd('Store Sequence '..seq..' Cue '..cue)
         cmd('Label Sequence '..seq..' Cue '..cue..' "ON"')
-        cmd('At 0')
+        if(white == 'true') then
+            cmd('At 100')
+        else
+            cmd('At 0')
+        end
         cmd('Store Sequence '..seq..' Cue '..(cue + 1))
         cmd('Label Sequence '..seq..' Cue '..(cue + 1)..' "OFF"')
-        cmd('Assign Sequence '..seq..' Cue '..(cue + 1)..' /trig=time /trigtime='..trigTime..' /fade='..fade)
+        cmd('Assign Sequence '..seq..' Cue '..(cue + 1)..' /trig=time /trigtime='..trigTime..' /fade='..fade..' /mode=release')
         cue = cue + 2
     end
     cmd('BlindEdit Off')
     cmd('Appearance Sequence '..seq..' /b=100 /r=50')
-    cmd('Assign Sequence '..seq..' /track=off')
     cmd('Assign Sequence '..seq..' Executor '..exec)
-    cmd('Assign Executor '..exec..' /priority=htp /restart=next /offttime=0.2')
+    cmd('Assign Sequence '..seq..' /track=off')
+    cmd('Assign Exec '..exec..' /restart=next /priority=htp /offtime=0.2')
 end
 
 function resetValues()
