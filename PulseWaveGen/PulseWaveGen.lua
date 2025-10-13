@@ -5,15 +5,15 @@ gma.feedback("Pulse Generator Plugin Loaded :DD")
 
 -- Local Variables
 local white = 'false'
-local grp = 0
+local groups = {}
+local directions = {"left", "right", "in", "out", "rnd"}
+local grpRnd = false
+local dirRnd = false
 local seq = 0
 local exec = 0
 local amount = 0
-local wing = 0
 local trigTime = 0.1
 local fade = 0.05
-local rnd = 'false'
-local white = 'false'
 
 local cue = 1
 
