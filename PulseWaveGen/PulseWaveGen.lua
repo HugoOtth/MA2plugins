@@ -1,9 +1,10 @@
 -- MADE BY HUGO OTTH - 2025
 
--- Pulse Wave Generator Plugin
-gma.feedback("Pulse Wave Generator Plugin Loaded :DD")
+-- Color Picker Update Plugin
+gma.feedback("Pulse Generator Plugin Loaded :DD")
 
 -- Local Variables
+local white = 'false'
 local grp = 0
 local seq = 0
 local exec = 0
