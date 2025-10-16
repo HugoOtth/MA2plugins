@@ -1,7 +1,7 @@
 -- MADE BY HUGO OTTH - 2025
 
 -- Color Picker Update Plugin
-gma.feedback("Pulse Generator Plugin Loaded :DD")
+gma.feedback("Pulse Wave Generator Plugin Loaded :DD")
 
 -- Local Variables
 local groups = {}
@@ -44,6 +44,7 @@ function setup()
             table.insert(groups, grpInput)
         end
     end
+    fb("Collected groups: "..table.concat(groups, ", "))
     dir = text('Direction? (left, right, in, out, rnd)', dir)
     seq = text('Enter Sequence Number',seq)
     exec = text('Enter Exec Number',exec)
@@ -126,11 +127,12 @@ end
 -- Plugin Function Selection --
 function PulseWaveGen_Start()
     setup()
-        exec = getExecutorFromUser()
-        if exec == nil then
-            fb("No executor selected, exiting.")
-            return
-        end
+    fb("setup done")
+    exec = getExecutorFromUser()
+    if exec == nil then
+        fb("No executor selected, exiting.")
+        return
+    end
     fb("selected exec: "..exec)
     --create()
     clear()
