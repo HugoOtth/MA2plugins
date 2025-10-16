@@ -4,7 +4,6 @@
 gma.feedback("Pulse Generator Plugin Loaded :DD")
 
 -- Local Variables
-local white = 'false'
 local groups = {}
 local directions = {"left", "right", "in", "out", "rnd"}
 local grpRnd = false
@@ -16,6 +15,7 @@ local trigTime = 0.1
 local fade = 0.05
 
 local cue = 1
+local grpCollect = true
 
 -- GrandMA Shortcuts
 local text = gma.textinput
@@ -36,20 +36,20 @@ end
 ------------------
 
 function setup()
-    white = text('White Bump Mode?',white)
-    grp = text('Enter Group Number', grp)
+    while grpCollect do
+        local grpInput = text('Enter Group '..(#groups + 1)..' (Leave empty to finish)', '')
+        if grpInput == '' then
+            grpCollect = false
+        else
+            table.insert(groups, grpInput)
+        end
+    end
+    dir = text('Direction? (left, right, in, out, rnd)', dir)
     seq = text('Enter Sequence Number',seq)
     exec = text('Enter Exec Number',exec)
     wing = text('Wings?',wing)
     rnd = text('Random order?',rnd)
     amount = tonumber(text('Pulse Amount?',amount))
-    if(white == 'false') then
-        trigTime = tonumber(text('Trig time? (Default = 0.10s)',trigTime))
-        fade = tonumber(text('Fade time? (Default = 0.05s)',fade))
-    else
-        trigTime = 0
-        fade = 0
-    end
 end
 
 function create()
@@ -90,7 +90,10 @@ function create()
 end
 
 function resetValues()
-    grp = 0
+    groups = {}
+    directions = {"left", "right", "in", "out", "rnd"}
+    grpRnd = false
+    dirRnd = false
     seq = 0
     exec = 0
     amount = 0
@@ -99,16 +102,39 @@ function resetValues()
     fade = 0.05
     rnd = 'false'
     cue = 1
-    white = 'false'
+
+    grpCollect = true
+end
+
+local function getExecutorFromUser()
+    Printf("Click on an executor in any executor view...")
+    -- You can specify what type of objects to select
+    local selection = ObjectList("Select Executor", "Executor")
+    
+    if selection and #selection > 0 then
+        local exec = selection[1]
+        local execId = exec:Number()
+        local execName = exec:Name()
+        
+        Printf("Selected: Exec " .. execId .. " (" .. execName .. ")")
+        return execId
+    end
+    
+    return nil
 end
 
 -- Plugin Function Selection --
-function PulseGen_Start()
+function PulseWaveGen_Start()
     setup()
-    fb(grp..seq..amount..wing..trigTime..fade)
-    create()
+        exec = getExecutorFromUser()
+        if exec == nil then
+            fb("No executor selected, exiting.")
+            return
+        end
+    fb("selected exec: "..exec)
+    --create()
     clear()
     resetValues()
 end
 
-return PulseGen_Start
+return PulseWaveGen_Start
