@@ -4,13 +4,15 @@
 gma.feedback("Pulse Wave Generator Plugin Loaded :DD")
 
 -- Local Variables
+local batch = false
 local groups = {}
-local directions = {"left", "right", "in", "out", "rnd"}
+local directions = {"left", "right", "in", "out", "circle", "rnd"}
 local grpRnd = false
 local dirRnd = false
 local seq = 0
 local exec = 0
 local amount = 0
+local delay = 0
 local trigTime = 0.1
 local fade = 0.05
 
@@ -21,7 +23,6 @@ local grpCollect = true
 local text = gma.textinput
 local cmd = gma.cmd
 local fb = gma.feedback
-local getHandle = gma.show.getobj.handle
 
 function sleep(s)
   gma.sleep(s)
@@ -36,52 +37,53 @@ end
 ------------------
 
 function setup()
-    while grpCollect do
-        local grpInput = text('Enter Group '..(#groups + 1)..' (Leave empty to finish)', '')
-        if grpInput == '' then
-            grpCollect = false
-        else
-            table.insert(groups, grpInput)
+    if batch then
+        while grpCollect do
+            local grpInput = text('Enter Group '..(#groups + 1)..' (Leave empty to finish)', '')
+            if grpInput == '' then
+                grpCollect = false
+            else
+                table.insert(groups, grpInput)
+            end
         end
     end
+    if not batch then
+        groups = text('Enter single Group', groups)
+    end
     fb("Collected groups: "..table.concat(groups, ", "))
-    dir = text('Direction? (left, right, in, out, rnd)', dir)
+    dir = text('Direction? (left, right, in, out, circle, rnd)', dir)
+    -- Open Seq and Exec View
+    cmd('View 278 /screen=5')
     seq = text('Enter Sequence Number',seq)
     exec = text('Enter Exec Number',exec)
     wing = text('Wings?',wing)
     rnd = text('Random order?',rnd)
-    amount = tonumber(text('Pulse Amount?',amount))
+    amount = tonumber(text('Wave Amount?',amount))
+    delay = tonumber(text('Wave Delay?',delay))
 end
 
 function create()
     cmd('BlindEdit On')
+    local cue = 1
 
     -- MAtricks
     cmd('Group '..grp)
     cmd('MAtricksWings '..wing)
-    if(rnd == 'true') then
-        cmd('ShuffleSelection')
-    end
-    cmd('MAtricksInterleave '..amount)
+    cmd('At 100')
+    cmd('At Delay 0 Thru '..delay)
 
-    -- Storing to Sequence
-    while cue <= amount * 2 do
-        cmd('Next')
-        cmd('At 100')
-        if(white == 'true') then
-            cmd('At Gel 1.1')
-        end
-        cmd('Store Sequence '..seq..' Cue '..cue)
-        cmd('Label Sequence '..seq..' Cue '..cue..' "ON"')
-        if(white == 'true') then
-            cmd('At 100')
-        else
-            cmd('At 0')
-        end
-        cmd('Store Sequence '..seq..' Cue '..(cue + 1))
-        cmd('Label Sequence '..seq..' Cue '..(cue + 1)..' "OFF"')
-        cmd('Assign Sequence '..seq..' Cue '..(cue + 1)..' /trig=time /trigtime='..trigTime..' /fade='..fade..' /mode=release')
-        cue = cue + 2
+    -- Store to Sequence
+    cmd('Store Sequence '..seq..' Cue '..cue)
+    cmd('Label Sequence '..seq..' Cue '..cue..' "ON"')
+
+    cmd('At 0')
+    cmd('At Delay 0 Thru '..delay)
+
+    cmd('Store Sequence '..seq..' Cue '..(cue + 1))
+    cmd('Label Sequence '..seq..' Cue '..(cue + 1)..' "OFF"')
+    cmd('Assign Sequence '..seq..' Cue '..(cue + 1)..' /trig=time /trigtime='..trigTime..' /fade='..fade..' /mode=release')
+        
+    
     end
     cmd('BlindEdit Off')
     cmd('Appearance Sequence '..seq..' /b=100 /r=50')
@@ -107,28 +109,10 @@ function resetValues()
     grpCollect = true
 end
 
-local function getExecutorFromUser()
-    Printf("Click on an executor in any executor view...")
-    -- You can specify what type of objects to select
-    local selection = ObjectList("Select Executor", "Executor")
-    
-    if selection and #selection > 0 then
-        local exec = selection[1]
-        local execId = exec:Number()
-        local execName = exec:Name()
-        
-        Printf("Selected: Exec " .. execId .. " (" .. execName .. ")")
-        return execId
-    end
-    
-    return nil
-end
-
 -- Plugin Function Selection --
 function PulseWaveGen_Start()
     setup()
     fb("setup done")
-    exec = getExecutorFromUser()
     if exec == nil then
         fb("No executor selected, exiting.")
         return
