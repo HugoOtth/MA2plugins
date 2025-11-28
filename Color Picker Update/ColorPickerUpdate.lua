@@ -11,12 +11,14 @@ local presetWidth = 16
 local execPage = 100
 local execStart = 101
 local seqStart = 300
+local updateMode = 0
 
 -- Amount of Colors
 local colNb = 11
 
 --local colSwatchBook = {"White", "Red", "Orange", "Yellow", "Green", "Sea Green", "Cyan", "Lavender", "Blue", "Violet", "Magenta", "Pink", "Warm White"}
-local colSwatchBook = {"White", "Red", "Orange", "Yellow", "Fern Green", "Green", "Cyan", "Blue", "Violet", "Magenta", "Pink"}
+local colSwatchBook = {"White", "Red", "Orange", "Yellow", "Green", "Cyan", "Lavender", "Blue", "Violet", "Magenta", "Pink"}
+local colSwatchIndex = {1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13}
 
 -- GrandMA Shortcuts
 local text = gma.textinput
@@ -38,25 +40,9 @@ end
 
 function deletePresets()
   --Delete Old Presets, Cues and Sequences.
-  for d=1, #groups-1 do
+  for d=0, #groups-1 do
     local presetCurrent = presetStart + ((d)* presetWidth)
     cmd("Delete Preset "..presetCurrent.." Thru "..(presetCurrent+colNb-1).." /nc")
-  end
-  clear()
-end
-
-function createPresets()
-  -- Create Group Presets *** KEEPS FIRST GROUP ***
-  for group=grpStart+1, #groups do
-    local presetCurrent = presetStart + ((group-1)* presetWidth)
-
-    for start=1,colNb do
-      local preset = presetCurrent+start-1
-      cmd("Group "..group.." At Preset 4."..start)
-      cmd("Store Preset 4."..preset)
-      cmd("Label Preset 4."..preset.." \""..groups[group].." "..colSwatchBook[start].."\"")
-    end
-    clear()
   end
   clear()
 end
@@ -64,6 +50,22 @@ end
 function deleteSequence()
   --Delete old Sequences and Cues
   cmd("Delete Sequence "..(seqStart).." Thru "..(seqStart+#groups-1).." /nc")
+end
+
+function createPresets()
+  -- Create All Presets and Group Presets
+  for group=grpStart, #groups do
+    local presetCurrent = presetStart + ((group-1)* presetWidth)
+
+    for start=1,colNb do
+      local preset = presetCurrent+start-1
+      cmd("Group "..group.." At Gel 1."..colSwatchIndex[start])
+      cmd("Store Preset 4."..preset)
+      cmd("Label Preset 4."..preset.." \""..groups[group].." "..colSwatchBook[start].."\"")
+    end
+    clear()
+  end
+  clear()
 end
 
 function createSequences()
@@ -100,22 +102,46 @@ function assignSequences()
   end
 end
 
+function resetValues()
+  updateMode = 0
+end
+
 -- Plugin Function Selection --
 function ColorPickerUpdate_Start()
   fb("---Color Picker Started :DDD---")
+  -- updateMode = tonumber(text('Update Mode? (0 = All, 1 = Colormatch All Group)', updateMode)) -- to be finished
   cmd("BlindEdit On")
   deletePresets()
-  createPresets()
+  fb("--- Presets Deleted ---")
   deleteSequence()
+  fb("--- Sequences Deleted ---")
   sleep(0.1)
+  createPresets()
+  fb("--- Presets Created ---")
   createSequences()
+  fb("--- Sequences Created ---")
   createCues()
+  fb("--- Cues Created ---")
   assignSequences()
   cmd("BlindEdit Off")
   fb("--- Color Picker Update Done---")
   sleep(0.5)
-  cmd("Go Macro COLFADE05")
+  cmd("Go Macro 787; Go Macro 704; Go Macro 711")
+  cmd("Go Macro ALLWHITE")
+  sleep(0.5)
   cmd("Go Macro ALLRED")
+  sleep(0.5)
+  cmd("Go Macro ALLYELLOW")
+  sleep(0.5)
+  cmd("Go Macro ALLGREEN")
+  sleep(0.5)
+  cmd("Go Macro ALLBLUE")
+  sleep(0.5)
+  cmd("Go Macro ALLPINK")
+  sleep(0.5)
+  cmd("Go Macro ALLRED")
+  sleep(0.5)
+  resetValues()
 end
 
 return ColorPickerUpdate_Start
