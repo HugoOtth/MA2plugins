@@ -187,16 +187,16 @@ local function PWG_createCuePair(grp, direction, cueNum)
     end
     
     cmd("At 100")
-    PWG_sleep(0.01)
-    cmd("At Delay " .. delayStr)
-    PWG_sleep(0.01)
+    PWG_sleep(0.05)
+    cmd("Delay " .. delayStr)
+    PWG_sleep(0.05)
     cmd("Store Sequence " .. PWG_seq .. " Cue " .. cueNum)
     cmd("Label Sequence " .. PWG_seq .. " Cue " .. cueNum .. " \"Full " .. PWG_dirShortNames[direction] .. "\"")
     
     cmd("At 0")
-    PWG_sleep(0.01)
-    cmd("At Delay " .. delayStr)
-    PWG_sleep(0.01)
+    PWG_sleep(0.05)
+    cmd("Delay " .. delayStr)
+    PWG_sleep(0.05)
     cmd("Store Sequence " .. PWG_seq .. " Cue " .. (cueNum + 1))
     cmd("Label Sequence " .. PWG_seq .. " Cue " .. (cueNum + 1) .. " \"Off " .. PWG_dirShortNames[direction] .. "\"")
     cmd("Assign Sequence " .. PWG_seq .. " Cue " .. (cueNum + 1) .. " /trig=time /trigtime=" .. PWG_trigTime .. " /fade=" .. PWG_fade .. " /mode=release")
@@ -228,9 +228,9 @@ local function PWG_createSingleStack()
             cmd("MAtricksWings " .. wing)
         end
         cmd("At 100")
-        PWG_sleep(0.01)
-        cmd("At Delay " .. delayStr)
-        PWG_sleep(0.01)
+        PWG_sleep(0.05)
+        cmd("Delay " .. delayStr)
+        PWG_sleep(0.05)
     end
     
     cmd("Store Sequence " .. PWG_seq .. " Cue 1")
@@ -249,9 +249,9 @@ local function PWG_createSingleStack()
             cmd("MAtricksWings " .. wing)
         end
         cmd("At 0")
-        PWG_sleep(0.01)
-        cmd("At Delay " .. delayStr)
-        PWG_sleep(0.01)
+        PWG_sleep(0.05)
+        cmd("Delay " .. delayStr)
+        PWG_sleep(0.05)
     end
     
     cmd("Store Sequence " .. PWG_seq .. " Cue 2")
