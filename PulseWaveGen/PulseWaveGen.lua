@@ -186,6 +186,8 @@ local function PWG_createCuePair(grp, direction, cueNum)
         cmd("MAtricksWings " .. wing)
     end
     
+    cmd("PresetType \"DIMMER\"")
+    
     cmd("At 100")
     PWG_sleep(0.05)
     cmd("Delay " .. delayStr)
@@ -227,6 +229,7 @@ local function PWG_createSingleStack()
         if wing > 0 then
             cmd("MAtricksWings " .. wing)
         end
+        cmd("PresetType \"DIMMER\"")
         cmd("At 100")
         PWG_sleep(0.05)
         cmd("Delay " .. delayStr)
